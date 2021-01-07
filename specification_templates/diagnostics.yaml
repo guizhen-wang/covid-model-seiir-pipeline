@@ -27,3 +27,20 @@ grid_plots:
         scenarios:
           worse: 'old_worse'
           reference: 'old_reference'
+compare_csv:
+  dates:
+    - '2021-01-04'
+    - '2021-04-01'
+    - '2021-12-31'
+  comparators:
+    # Full path or DATE.VV or latest/best
+    - version: 'latest'
+      scenarios:
+        # Keys are scenarios and values are plot labels. Within a job,
+        # good idea to keep the plot labels unique.
+        worse: 'worse'
+        reference: 'reference'
+    - version: '/ihme/covid-19/seir-outputs/2020_12_22.03'
+      scenarios:
+        worse: 'old_worse'
+        reference: 'old_reference'
