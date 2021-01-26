@@ -106,7 +106,9 @@ class InfectionRoot(DataRoot):
     metadata = MetadataType('metadata')
 
     infections = DatasetType('infections_draws', LEAF_TEMPLATES.DRAW_TEMPLATE)
-    ratios = DatasetType('ratio_draws', LEAF_TEMPLATES.DRAW_TEMPLATE)
+    ifr = DatasetType('ifr_draws', LEAF_TEMPLATES.DRAW_TEMPLATE)
+    ihr = DatasetType('ihr_draws', LEAF_TEMPLATES.DRAW_TEMPLATE)
+    idr = DatasetType('idr_draws', LEAF_TEMPLATES.DRAW_TEMPLATE)
 
 
 class MortalityRateRoot(DataRoot):
@@ -114,13 +116,6 @@ class MortalityRateRoot(DataRoot):
     metadata = MetadataType('metadata')
 
     mortality_rate = DatasetType('mortality_ratio_5yr')
-
-
-class HospitalFatalityRatioRoot(DataRoot):
-    """Data root representing the hospital fatality ratio."""
-    metadata = MetadataType('metadata')
-
-    hospital_fatality_ratio = DatasetType('HR_byloc_blend_with_ids')
 
 
 class CovariateRoot(DataRoot):
