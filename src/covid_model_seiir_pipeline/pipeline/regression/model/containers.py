@@ -21,14 +21,6 @@ class ODEParameters:
     def to_dict(self) -> Dict[str, Union[int, float]]:
         return utilities.asdict(self)
 
-@dataclass
-class HospitalFatalityRatioData:
-    age_specific: pd.Series
-    all_age: pd.Series
-
-    def to_dict(self) -> Dict[str, pd.Series]:
-        return utilities.asdict(self)
-
 
 @dataclass
 class HospitalCensusData:

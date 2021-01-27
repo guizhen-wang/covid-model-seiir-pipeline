@@ -21,7 +21,6 @@ from covid_model_seiir_pipeline.pipeline.forecasting.specification import (
 from covid_model_seiir_pipeline.pipeline.forecasting.model import (
     HospitalMetrics,
     HospitalCorrectionFactors,
-    HospitalFatalityRatioData,
     HospitalCensusData,
     ScenarioData,
 )
@@ -111,11 +110,6 @@ class ForecastDataInterface:
     def load_mortality_ratio(self, location_ids: List[int]) -> pd.Series:
         return self._get_regression_data_interface().load_mortality_ratio(location_ids)
 
-    def load_hospital_fatality_ratio(self,
-                                     death_weights: pd.Series,
-                                     location_ids: List[int]) -> HospitalFatalityRatioData:
-        rdi = self._get_regression_data_interface()
-        return rdi.load_hospital_fatality_ratio(death_weights, location_ids, with_error=False)
 
     ##########################
     # Covariate data loaders #

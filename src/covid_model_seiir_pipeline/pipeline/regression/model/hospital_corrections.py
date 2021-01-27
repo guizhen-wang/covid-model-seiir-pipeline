@@ -8,7 +8,6 @@ import pandas as pd
 import tqdm
 
 from covid_model_seiir_pipeline.pipeline.regression.model.containers import (
-    HospitalFatalityRatioData,
     HospitalCensusData,
     HospitalMetrics,
     HospitalCorrectionFactors,
@@ -184,7 +183,7 @@ def _to_census(admissions: pd.Series, length_of_stay: int) -> pd.Series:
 
 def compute_hospital_usage(all_age_deaths: pd.DataFrame,
                            death_weights: pd.Series,
-                           hospital_fatality_ratio: HospitalFatalityRatioData,
+                           hospital_fatality_ratio,
                            hospital_parameters: 'HospitalParameters') -> HospitalMetrics:
     all_age_deaths = all_age_deaths.set_index(['location_id', 'date'])['deaths'].sort_index()
     age_specific_deaths = (all_age_deaths * death_weights).reorder_levels(['location_id', 'age', 'date'])
