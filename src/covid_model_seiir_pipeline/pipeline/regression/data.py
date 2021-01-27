@@ -114,7 +114,7 @@ class RegressionDataInterface:
         infection_data = (infection_data
                           .set_index(['location_id', 'date'])
                           .sort_index()
-                          .loc[:, ['infections_draw', 'duration', 'deaths']]
+                          .loc[:, ['infections_draw', 'deaths']]
                           .rename(columns={'infections_draw': 'infections'}))
         return infection_data
 
@@ -124,9 +124,9 @@ class RegressionDataInterface:
         ifr = ifr.loc[ifr.location_id.isin(location_ids)]
         ifr['date'] = pd.to_datetime(ifr['date'])
         ifr = ifr.set_index(['location_id', 'date']).sort_index()
-        cols = [c for c in ifr.columns if '_draw' in c]
-        ifr = ifr.loc[:, cols].rename(columns={c: c.split('_draw')[0] for c in cols})
-        return ifr
+        col_map = {c: c.split('_draw')[0] for c in ifr.columns if '_draw' in c}
+        ifr = ifr.loc[:, list(col_map)].rename(columns=col_map)
+        return ifr[['duration'] + list(col_map.values())]
 
     def load_ihr_data(self, draw_id: int) -> pd.DataFrame:
         location_ids = self.load_location_ids()
@@ -134,7 +134,7 @@ class RegressionDataInterface:
         ihr = ihr.loc[ihr.location_id.isin(location_ids)]
         ihr['date'] = pd.to_datetime(ihr['date'])
         ihr = ihr.set_index(['location_id', 'date']).sort_index().rename(columns={'ihr_draw': 'ihr'})
-        return ihr
+        return ihr[['duration', 'ihr']]
 
     def load_idr_data(self, draw_id: int) -> pd.DataFrame:
         location_ids = self.load_location_ids()
@@ -142,7 +142,7 @@ class RegressionDataInterface:
         idr = idr.loc[idr.location_id.isin(location_ids)]
         idr['date'] = pd.to_datetime(idr['date'])
         idr = idr.set_index(['location_id', 'date']).sort_index().rename(columns={'idr_draw': 'idr'})
-        return idr
+        return idr[['duration', 'idr']]
 
     ##########################
     # Covariate data loaders #

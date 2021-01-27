@@ -7,10 +7,10 @@ import pandas as pd
 from covid_model_seiir_pipeline.lib import (
     cli_tools,
     static_vars,
-    math,
 )
 from covid_model_seiir_pipeline.pipeline.regression.specification import (
     RegressionSpecification,
+    REGRESSION_JOBS,
 )
 from covid_model_seiir_pipeline.pipeline.regression.data import (
     RegressionDataInterface,
@@ -23,7 +23,7 @@ from covid_model_seiir_pipeline.pipeline.regression import (
 logger = cli_tools.task_performance_logger
 
 
-def run_hospital_correction_factors(regression_version: str, with_error: bool) -> None:
+def run_hospital_correction_factors(regression_version: str, with_progress_bar: bool, with_error: bool) -> None:
     logger.info('Starting hospital correction factors.', context='setup')
     # Build helper abstractions
     regression_spec_file = Path(regression_version) / static_vars.REGRESSION_SPECIFICATION_FILE
@@ -34,18 +34,13 @@ def run_hospital_correction_factors(regression_version: str, with_error: bool) -
     logger.info('Loading input data', context='read')
     hierarchy = data_interface.load_hierarchy()
     location_ids = data_interface.load_location_ids()
-    # We just want the mean deaths through here, which is the same across
-    # all draws, so we'll default to draw 0.
-    infection_data = data_interface.load_past_infection_data(
-        draw_id=0,
-        location_ids=location_ids,
-    )
-    deaths = infection_data['deaths'].reset_index()
+    n_draws = data_interface.get_n_draws()
+    n_cores = (regression_specification
+               .workflow
+               .task_specifications[REGRESSION_JOBS.hospital_correction_factors]
+               .num_cores)
 
-    population = data_interface.load_five_year_population(location_ids)
-    mr = data_interface.load_mortality_ratio(location_ids)
-    death_weights = model.get_death_weights(mr, population, with_error)
-    hfr = data_interface.load_hospital_fatality_ratio(death_weights, location_ids, with_error)
+    admissions = model.load_mean_hospitalizations(data_interface, location_ids, n_draws, n_cores, with_progress_bar)
     hospital_census_data = data_interface.load_hospital_census_data()
 
     logger.info('Computing hospital usage', context='compute_usage')
@@ -78,14 +73,15 @@ def run_hospital_correction_factors(regression_version: str, with_error: bool) -
 
 @click.command()
 @cli_tools.with_regression_version
+@cli_tools.with_progress_bar
 @click.option('-e', 'with_error', is_flag=True)
 @cli_tools.add_verbose_and_with_debugger
-def hospital_correction_factors(regression_version: str,
+def hospital_correction_factors(regression_version: str, with_progress_bar: bool,
                                 with_error: bool, verbose: int, with_debugger: bool):
     cli_tools.configure_logging_to_terminal(verbose)
 
     run = cli_tools.handle_exceptions(run_hospital_correction_factors, logger, with_debugger)
-    run(regression_version=regression_version, with_error=with_error)
+    run(regression_version=regression_version, with_progress_bar=with_progress_bar, with_error=with_error)
 
 
 if __name__ == '__main__':

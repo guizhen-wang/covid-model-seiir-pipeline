@@ -1,8 +1,11 @@
 from collections import defaultdict
-from typing import TYPE_CHECKING
+import functools
+import multiprocessing
+from typing import List, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+import tqdm
 
 from covid_model_seiir_pipeline.pipeline.regression.model.containers import (
     HospitalFatalityRatioData,
@@ -15,10 +18,38 @@ if TYPE_CHECKING:
     from covid_model_seiir_pipeline.pipeline.regression.specification import (
         HospitalParameters,
     )
+    from covid_model_seiir_pipeline.pipeline.regression.data import (
+        RegressionDataInterface,
+    )
 
 
 # FIXME: These bins are a hangover from early covid CDC data.
 AGE_BINS = [0, 55, 65, 75, 85, 125]
+
+
+def load_mean_hospitalizations(data_interface: 'RegressionDataInterface',
+                               location_ids: List[int], n_draws: int,
+                               n_cores: int, show_pb: bool) -> pd.DataFrame:
+    _runner = functools.partial(
+        _load_hospitalizations_draw,
+        data_interface=data_interface,
+        location_ids=location_ids,
+    )
+
+    #with multiprocessing.Pool(n_cores) as pool:
+    #    hospital_draws = list(tqdm.tqdm(pool.imap(_runner, range(n_draws)), total=n_draws, disable=not show_pb))
+    _runner(0)
+
+    hospital_mean = pd.concat(hospital_draws, axis=1).mean(axis=1)
+
+    return hospital_mean
+
+
+def _load_hospitalizations_draw(draw_id: int, data_interface: 'RegressionDataInterface',
+                                location_ids: List[int]) -> pd.Series:
+    infection_data = data_interface.load_past_infection_data(draw_id, location_ids)
+    ihr_data = data_interface.load_ihr_data(draw_id)
+    import pdb; pdb.set_trace()
 
 
 def get_death_weights(mr: pd.Series, population: pd.DataFrame, with_error: bool) -> pd.Series:
