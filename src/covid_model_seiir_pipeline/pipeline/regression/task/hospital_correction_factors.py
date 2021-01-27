@@ -76,12 +76,12 @@ def run_hospital_correction_factors(regression_version: str, with_progress_bar: 
 @cli_tools.with_progress_bar
 @click.option('-e', 'with_error', is_flag=True)
 @cli_tools.add_verbose_and_with_debugger
-def hospital_correction_factors(regression_version: str, with_progress_bar: bool,
+def hospital_correction_factors(regression_version: str, progress_bar: bool,
                                 with_error: bool, verbose: int, with_debugger: bool):
     cli_tools.configure_logging_to_terminal(verbose)
 
     run = cli_tools.handle_exceptions(run_hospital_correction_factors, logger, with_debugger)
-    run(regression_version=regression_version, with_progress_bar=with_progress_bar, with_error=with_error)
+    run(regression_version=regression_version, with_progress_bar=progress_bar, with_error=with_error)
 
 
 if __name__ == '__main__':
