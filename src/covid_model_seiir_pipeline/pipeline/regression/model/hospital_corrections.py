@@ -26,29 +26,33 @@ if TYPE_CHECKING:
 AGE_BINS = [0, 55, 65, 75, 85, 125]
 
 
-def load_mean_hospitalizations(data_interface: 'RegressionDataInterface',
-                               location_ids: List[int], n_draws: int,
-                               n_cores: int, show_pb: bool) -> pd.DataFrame:
+def load_admissions(data_interface: 'RegressionDataInterface',
+                    location_ids: List[int], n_draws: int,
+                    n_cores: int, show_pb: bool) -> pd.DataFrame:
     _runner = functools.partial(
-        _load_hospitalizations_draw,
+        _load_admissions_draw,
         data_interface=data_interface,
         location_ids=location_ids,
     )
 
-    #with multiprocessing.Pool(n_cores) as pool:
-    #    hospital_draws = list(tqdm.tqdm(pool.imap(_runner, range(n_draws)), total=n_draws, disable=not show_pb))
-    _runner(0)
+    with multiprocessing.Pool(n_cores) as pool:
+        hospital_draws = list(tqdm.tqdm(pool.imap(_runner, range(n_draws)), total=n_draws, disable=not show_pb))
 
-    hospital_mean = pd.concat(hospital_draws, axis=1).mean(axis=1)
+    hospital_mean = pd.concat(hospital_draws, axis=1).mean(axis=1).rename('admissions')
 
     return hospital_mean
 
 
-def _load_hospitalizations_draw(draw_id: int, data_interface: 'RegressionDataInterface',
-                                location_ids: List[int]) -> pd.Series:
+def _load_admissions_draw(draw_id: int, data_interface: 'RegressionDataInterface',
+                          location_ids: List[int]) -> pd.Series:
     infection_data = data_interface.load_past_infection_data(draw_id, location_ids)
     ihr_data = data_interface.load_ihr_data(draw_id)
-    import pdb; pdb.set_trace()
+    duration = ihr_data.duration.max()  # All the same
+    full_index = infection_data.index.union(ihr_data.index).sort_values()
+    shifted_infections = infection_data.infections.reindex(full_index).shift(duration)
+    ihr = ihr_data.ihr.reindex(full_index)
+    admissions = (shifted_infections * ihr).dropna().rename(f'draw_{draw_id}')
+    return admissions
 
 
 def get_death_weights(mr: pd.Series, population: pd.DataFrame, with_error: bool) -> pd.Series:

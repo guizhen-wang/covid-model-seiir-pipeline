@@ -40,7 +40,8 @@ def run_hospital_correction_factors(regression_version: str, with_progress_bar: 
                .task_specifications[REGRESSION_JOBS.hospital_correction_factors]
                .num_cores)
 
-    admissions = model.load_mean_hospitalizations(data_interface, location_ids, n_draws, n_cores, with_progress_bar)
+    admissions = model.load_admissions(data_interface, location_ids, n_draws, n_cores, with_progress_bar)
+    import pdb; pdb.set_trace()
     hospital_census_data = data_interface.load_hospital_census_data()
 
     logger.info('Computing hospital usage', context='compute_usage')

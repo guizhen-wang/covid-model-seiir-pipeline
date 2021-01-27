@@ -1,5 +1,5 @@
 data:
-  infection_version: '2021_01_21.12'
+  infection_version: '2021_01_26.06'
   covariate_version: '2021_01_20.01'
   mortality_rate_version: 'best'
   coefficient_version: ''
@@ -16,8 +16,8 @@ workflow:
       num_cores: 1
     hospital_correction_factors:
       max_runtime_seconds: 3000
-      m_mem_free: '2G'
-      num_cores: 1
+      m_mem_free: '20G'
+      num_cores: 26
 regression_parameters:
   n_draws: 1000
   day_shift: [0, 11]
