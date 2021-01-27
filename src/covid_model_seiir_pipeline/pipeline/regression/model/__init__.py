@@ -15,7 +15,6 @@ from covid_model_seiir_pipeline.pipeline.regression.model.regress import (
 )
 from covid_model_seiir_pipeline.pipeline.regression.model.hospital_corrections import (
     load_admissions,
-    get_death_weights,
     compute_hospital_usage,
     calculate_hospital_correction_factors,
 )

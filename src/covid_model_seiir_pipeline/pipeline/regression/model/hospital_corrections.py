@@ -55,17 +55,6 @@ def _load_admissions_draw(draw_id: int, data_interface: 'RegressionDataInterface
     return admissions
 
 
-def get_death_weights(mr: pd.Series, population: pd.DataFrame, with_error: bool) -> pd.Series:
-    """Get a series of weights to split all age deaths into age-specific."""
-    pop = population.copy()
-    # Coerce population to series matching index of MR
-    pop['age_start'] = pop['age_group_years_start'].astype(int)
-    pop = pop.loc[:, ['location_id', 'age_start', 'population']].set_index(['location_id', 'age_start']).population
-
-    calc_func = {True: _get_death_weight_error, False: _get_death_weight_correct}[with_error]
-    return calc_func(mr, pop)
-
-
 def _get_death_weight_correct(mr: pd.Series, pop: pd.Series) -> pd.Series:
     def _compute_death_weight(df, start, end):
         return df.loc[(start <= df.age_start) & (df.age_start < end), 'mr_prob'].sum() / df['mr_prob'].sum()
@@ -185,12 +174,8 @@ def _to_census(admissions: pd.Series, length_of_stay: int) -> pd.Series:
             .fillna(0))
 
 
-def compute_hospital_usage(all_age_deaths: pd.DataFrame,
-                           death_weights: pd.Series,
-                           hospital_fatality_ratio,
+def compute_hospital_usage(admissions: pd.Series,
                            hospital_parameters: 'HospitalParameters') -> HospitalMetrics:
-    all_age_deaths = all_age_deaths.set_index(['location_id', 'date'])['deaths'].sort_index()
-    age_specific_deaths = (all_age_deaths * death_weights).reorder_levels(['location_id', 'age', 'date'])
 
     prob_icu = get_p_icu_if_recover(hospital_fatality_ratio.all_age, hospital_parameters)
     prob_no_icu = 1 - prob_icu

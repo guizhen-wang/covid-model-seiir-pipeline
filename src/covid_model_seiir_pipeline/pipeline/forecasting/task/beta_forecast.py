@@ -62,7 +62,7 @@ def run_beta_forecast(forecast_version: str, scenario: str, draw_id: int, **kwar
     ifr = data_interface.load_ifr_data(draw_id, location_ids)
     # Data for computing hospital usage
     mr = data_interface.load_mortality_ratio(location_ids)
-    death_weights = model.get_death_weights(mr, population, with_error=False)
+    death_weights = None
     hfr = None
     hospital_parameters = data_interface.get_hospital_parameters()
     correction_factors = data_interface.load_hospital_correction_factors()

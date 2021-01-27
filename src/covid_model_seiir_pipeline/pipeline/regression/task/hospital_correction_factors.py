@@ -41,14 +41,11 @@ def run_hospital_correction_factors(regression_version: str, with_progress_bar: 
                .num_cores)
 
     admissions = model.load_admissions(data_interface, location_ids, n_draws, n_cores, with_progress_bar)
-    import pdb; pdb.set_trace()
     hospital_census_data = data_interface.load_hospital_census_data()
 
     logger.info('Computing hospital usage', context='compute_usage')
     hospital_usage = model.compute_hospital_usage(
-        deaths,
-        death_weights,
-        hfr,
+        admissions,
         hospital_parameters,
     )
     logger.info('Computing correction factors', context='compute_corrections')
