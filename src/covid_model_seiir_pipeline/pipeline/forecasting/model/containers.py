@@ -48,3 +48,12 @@ class ScenarioData:
 
     def to_dict(self) -> Dict[str, Union[pd.DataFrame, None]]:
         return utilities.asdict(self)
+
+
+@dataclass
+class VariantScalars:
+    beta: pd.Series
+    ifr: pd.Series
+
+    def to_dict(self) -> Dict[str, pd.Series]:
+        return utilities.asdict(self)

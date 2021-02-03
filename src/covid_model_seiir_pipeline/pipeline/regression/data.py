@@ -189,8 +189,6 @@ class RegressionDataInterface:
     # Ratio data loaders #
     ######################
 
-
-
     def load_mortality_ratio(self, location_ids: List[int]) -> pd.Series:
         mr_df = io.load(self.mortality_rate_root.mortality_rate())
         mr_df = mr_df.loc[mr_df.location_id.isin(location_ids), ['location_id', 'age_start', 'MRprob']]
